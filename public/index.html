@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JYD GYM</title>
+  <link rel="icon" type="image.png" href="img/logo.png">
+  <link rel="stylesheet" href="styles.css?v=10">
+  <link rel="stylesheet" href="dashboard.css?v=10">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+</head>
+
+<body>
+
+  <header class="header">
+
+    <div class="catalogo-header">
+
+      <div class="container catalogo-nav">
+
+        <button type="button" id="btnMenuMobile" class="menu-label">
+          <i class="bi bi-list"></i>
+        </button>
+
+        <a href="index.html" class="logo">
+          <img src="img/logo.png" alt="Rivera Shop">
+        </a>
+
+        <nav class="nav-link" id="navbarMobile">
+          <a href="index.html" class="activo">Inicio</a>
+          <a href="#rutinasGuiadas">Rutina</a>
+          <a href="catalogo.html">Producto</a>
+          <a href="#footer">Contacto</a>
+
+        </nav>
+
+
+
+        <div class="catalogo-search">
+          <input type="text" id="buscarCatalogo" placeholder="Buscar productos...">
+          <span>🔍</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-content">
+      <div class="swiper header-swiper">
+        <div class="swiper-wrapper" id="flyersSwiper">
+          <!-- Los flyers se cargan con JS -->
+        </div>
+
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
+  </header>
+
+  <section class="servicios-slider-section" id="servicios">
+    <div class="container">
+
+      <div class="servicios-slider-header">
+        <span>Servicios J&D Gym</span>
+        <h2>Entrena con espacios diseñados para progresar</h2>
+        <p>
+          Conoce nuestros servicios principales y elige el entrenamiento que más se adapta a tus objetivos.
+        </p>
+      </div>
+
+      <div class="servicios-slider-layout">
+
+        <!-- TEXTO DINÁMICO -->
+        <div class="servicios-texto-card" id="serviciosTextoCard">
+          <div class="servicio-texto-top">
+            <div class="servicio-texto-icon" id="servicioIcono">
+              <i class="bi bi-person-check"></i>
+            </div>
+
+            <span id="servicioNumero">Servicio 01</span>
+          </div>
+
+          <h3 id="servicioTitulo">Entrenamiento Dirigido</h3>
+
+          <p id="servicioDescripcion">
+            Programas personalizados diseñados por entrenadores para ayudar a cada persona a alcanzar sus objetivos.
+          </p>
+
+          <ul id="servicioBeneficios">
+            <li><i class="bi bi-check-circle"></i> Planes adaptados a tu condición física.</li>
+            <li><i class="bi bi-check-circle"></i> Acompañamiento técnico durante el entrenamiento.</li>
+            <li><i class="bi bi-check-circle"></i> Enfoque en resultados reales y medibles.</li>
+          </ul>
+
+          <a href="https://wa.me/573167858252" target="_blank" class="servicio-info-btn" id="servicioBoton">
+            Más Información
+          </a>
+        </div>
+
+        <!-- SWIPER DE IMÁGENES -->
+        <div class="servicios-imagen-wrapper">
+          <div class="swiper servicios-img-swiper">
+            <div class="swiper-wrapper">
+
+              <div class="swiper-slide">
+                <img src="img/entrenamiento-dirigido.webp" alt="Entrenamiento dirigido">
+              </div>
+
+              <div class="swiper-slide">
+                <img src="img/zonaFuncional.webp" alt="Zona funcional">
+              </div>
+
+              <div class="swiper-slide">
+                <img src="img/clases-grupales.webp" alt="Clases grupales">
+              </div>
+
+              <div class="swiper-slide">
+                <img src="img/ZonaDeCardio.webp" alt="Zona cardiovascular">
+              </div>
+
+              <div class="swiper-slide">
+                <img src="img/ZonaPesas.webp" alt="Zona de pesas">
+              </div>
+
+              <div class="swiper-slide">
+                <img src="img/evaluacionFisica.webp" alt="Evaluación y control de progreso">
+              </div>
+
+            </div>
+
+            <div class="servicios-swiper-controls">
+              <div class="servicios-button-prev">
+                <i class="bi bi-arrow-left"></i>
+              </div>
+
+              <div class="servicios-pagination"></div>
+
+              <div class="servicios-button-next">
+                <i class="bi bi-arrow-right"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <section class="rutinas-section container" id="rutinasGuiadas">
+    <div class="rutinas-header">
+      <span>Rutinas guiadas</span>
+      <h2>Entrena por grupo muscular</h2>
+      <p>
+        Selecciona un músculo y mira ejercicios con imagen, repeticiones y explicación.
+      </p>
+    </div>
+
+    <div class="rutinas-tabs" id="gruposMuscularesIndex">
+      <!-- Los músculos se cargan con JS -->
+    </div>
+
+    <div class="rutinas-layout">
+      <div class="rutina-imagen-card" id="rutinaImagenPrincipal">
+        <div class="rutina-placeholder">
+          <i class="bi bi-person-arms-up"></i>
+          <h3>Selecciona una rutina</h3>
+          <p>Cuando agregues ejercicios desde el admin, aparecerán aquí.</p>
+        </div>
+      </div>
+
+      <div class="rutina-ejercicios-lista" id="listaEjerciciosIndex">
+        <div class="rutina-lista-vacia">
+          <h4>No hay ejercicios cargados todavía</h4>
+          <p>Agrega músculos y ejercicios desde el panel de administración.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!--<section class="categories container">
+
+    <h2><span class="titulo">
+        <hr class="hr1">Categorias
+        <hr class="hr2">
+      </span></h2>
+
+    <section class="categories container">
+      <div id="categoriasIndex" class="categorias-index"></div>
+    </section>
+
+
+  </section>-->
+
+  <section class="suplementos-section container">
+    <div class="suplementos-header">
+      <span>Productos destacados</span>
+      <h2>Proteínas y suplementos</h2>
+      <p>
+        Encuentra suplementos, proteínas y productos pensados para acompañar tu entrenamiento.
+      </p>
+    </div>
+
+    <section class="productos-home container">
+      <!-- Swiper -->
+      <div class="swiper productosSwiper">
+        <div class="swiper-wrapper" id="productosIndex">
+          <!-- Aquí se pintan los productos con JS -->
+        </div>
+      </div>
+    </section>
+
+    <div class="productos-home-header">
+      <a href="catalogo.html" class="ver-catalogo">Ver catálogo</a>
+    </div>
+
+    <!-- Carrito flotante -->
+    <button type="button" id="btnCarritoFlotante" class="carrito-flotante">
+      <i class="bi bi-cart"></i> <span id="contadorCarrito">0</span>
+    </button>
+
+
+    <!--<section class="publicidad-home-section container" id="publicidadEventos">
+      <div class="publicidad-home-header">
+        <span>Publicidad y eventos</span>
+        <h2>También te puede interesar</h2>
+        <p>
+          Conoce eventos, promociones y negocios aliados de nuestra comunidad.
+        </p>
+      </div>
+
+      <div class="swiper publicidad-home-swiper">
+        <div class="swiper-wrapper" id="publicidadIndex">
+          Publicidades desde JS 
+        </div>
+
+        <div class="swiper-pagination publicidad-pagination"></div>
+      </div>
+
+      <div class="publicidad-home-footer">
+        <a href="publicidad.html" class="publicidad-ver-mas">
+          Ver todas las publicidades
+        </a>
+      </div>
+    </section>-->
+
+    <!-- Modal Checkout -->
+    <div class="modal-checkout" id="modalCheckout">
+      <div class="modal-checkout-content">
+        <span class="cerrar-checkout" id="cerrarCheckout">&times;</span>
+
+        <h2>Finalizar compra</h2>
+
+        <form id="formCheckout">
+          <input type="text" id="checkoutNombre" placeholder="Nombre completo" required>
+          <input type="tel" id="checkoutWhatsapp" placeholder="WhatsApp" required>
+          <input type="email" id="checkoutCorreo" placeholder="Correo electrónico">
+
+          <input type="text" id="checkoutDireccion" placeholder="Dirección" required>
+          <input type="text" id="checkoutCiudad" placeholder="Ciudad" required>
+
+          <input type="hidden" id="checkoutMetodoPago" required>
+
+          <div class="metodos-pago">
+            <button type="button" class="metodo-pago-btn" data-metodo-pago="Nequi">Nequi</button>
+            <button type="button" class="metodo-pago-btn" data-metodo-pago="Bancolombia">Bancolombia</button>
+          </div>
+
+          <div class="info-metodo-pago" id="infoMetodoPago">
+            Selecciona un método de pago para ver la información.
+          </div>
+
+          <input type="file" id="checkoutComprobante" accept="image/*,.pdf">
+          <textarea id="checkoutNotas" placeholder="Notas adicionales"></textarea>
+          <button type="submit">Enviar pedido</button>
+        </form>
+      </div>
+    </div>
+
+    <section class="experiencias-section container" id="experienciasClientes">
+      <div class="experiencias-header">
+        <span>Experiencias</span>
+        <h2>Lo que dicen nuestros clientes</h2>
+        <p>Comparte tu experiencia entrenando con nosotros.</p>
+      </div>
+
+      <div class="experiencias-layout">
+
+        <form id="formComentarioCliente" class="comentario-form">
+          <h3>Deja tu comentario</h3>
+
+          <input type="text" id="nombreComentarioCliente" placeholder="Tu nombre" required>
+
+          <textarea id="textoComentarioCliente" placeholder="Cuéntanos tu experiencia" required></textarea>
+
+          <button type="submit">
+            Enviar comentario
+          </button>
+        </form>
+
+        <div class="swiper comentarios-swiper">
+          <div class="swiper-wrapper" id="comentariosIndex">
+            <!-- Comentarios desde JS -->
+          </div>
+
+          <div class="swiper-pagination comentarios-pagination"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="ubicacion-section container" id="ubicacion">
+      <div class="ubicacion-header">
+        <span>Visítanos</span>
+        <h2>Horario y ubicación</h2>
+        <p>
+          Encuéntranos fácilmente y comunícate con nosotros para resolver tus dudas.
+        </p>
+      </div>
+
+      <div class="ubicacion-layout">
+
+        <div class="ubicacion-info">
+
+          <div class="ubicacion-card">
+            <div class="ubicacion-icon">
+              <i class="bi bi-clock"></i>
+            </div>
+
+            <div>
+              <h3>Horario</h3>
+              <p>Lunes a viernes</p>
+              <strong>6:00 a.m. - 11:00 a.m.</strong>
+              <strong>4:00 p.m. - 9:00 p.m.</strong>
+            </div>
+          </div>
+
+          <div class="ubicacion-card">
+            <div class="ubicacion-icon">
+              <i class="bi bi-geo-alt"></i>
+            </div>
+
+            <div>
+              <h3>Ubicación</h3>
+              <p>Estamos ubicados en:</p>
+              <strong>Tolima Grande, Manzana C, Casa 15</strong>
+            </div>
+          </div>
+
+          <div class="ubicacion-card">
+            <div class="ubicacion-icon">
+              <i class="bi bi-whatsapp"></i>
+            </div>
+
+            <div>
+              <h3>WhatsApp</h3>
+              <p>Escríbenos para más información</p>
+
+              <a href="https://wa.me/573167858252" target="_blank" class="ubicacion-whatsapp">
+                +57 316 7858252
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="ubicacion-mapa">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d63645.07375795187!2d-75.24968053003612!3d4.445110055387839!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e38c5ee3598673f%3A0xbd175fb191f48ecd!2sJ%26D%20GYM!5e0!3m2!1sen!2sco!4v1780256432347!5m2!1sen!2sco"
+            width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+
+      </div>
+    </section>
+
+
+    <footer class="footer" id="footer">
+      <div class="footer-contenido">
+
+        <!-- MARCA -->
+        <div class="footer-seccion footer-brand">
+          <div class="logoFooter">
+            <img src="img/logo.png" alt="Logo JYD GYM">
+          </div>
+
+          <p>
+            Entrena con disciplina, constancia y enfoque. En J&D GYM te acompañamos para que logres tus objetivos.
+          </p>
+        </div>
+
+        <!-- CONTACTO -->
+        <div class="footer-seccion">
+          <h4>Contacto</h4>
+
+          <p>
+            <i class="bi bi-whatsapp"></i>
+            <span>+57 316 7858252</span>
+          </p>
+
+          <p>
+            <i class="bi bi-geo-alt"></i>
+            <span>Ubicación del gimnasio</span>
+          </p>
+
+          <p>
+            <i class="bi bi-envelope"></i>
+            <span>Atención personalizada</span>
+          </p>
+        </div>
+
+        <!-- SERVICIOS -->
+        <div class="footer-seccion">
+          <h4>Servicios</h4>
+
+          <ul class="footer-lista">
+            <li>Planes diarios, semanales y mensuales</li>
+            <li>Rutinas guiadas</li>
+            <li>Proteínas y suplementos</li>
+            <li>Asesoría deportiva</li>
+          </ul>
+        </div>
+
+        <!-- REDES -->
+        <div class="footer-seccion">
+          <h4>Síguenos</h4>
+
+          <p class="footer-redes-texto">
+            Conéctate con nosotros y conoce novedades, planes y promociones.
+          </p>
+
+          <div class="footer-social">
+            <a href="https://www.facebook.com/share/1BGtFR2rLx/" target="_blank">
+              <i class="bi bi-facebook"></i>
+            </a>
+
+            <a href="https://wa.me/573167858252?text=Hola%20quiero%20información%20sobre%20sus%20planes"
+              target="_blank">
+              <i class="bi bi-whatsapp"></i>
+            </a>
+
+            <a href="https://www.instagram.com/jyd.gym.ibague?utm_source=qr&igsh=MTRIdjJqYzMzcXcwcQ==" target="_blank">
+              <i class="bi bi-instagram"></i>
+            </a>
+
+            <a href="https://www.tiktok.com/@jd.gym6?_r=1&_t=ZS-975A6NwsQKu" target="_blank">
+              <i class="bi bi-tiktok"></i>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="footer-copy">
+        <p>© 2026 J&D GYM. Todos los derechos reservados.</p>
+      </div>
+    </footer>
+
+    <div class="modal-imagen-rutina" id="modalImagenRutina">
+      <button type="button" class="cerrar-modal-imagen-rutina" id="cerrarModalImagenRutina">
+        &times;
+      </button>
+
+      <img id="imagenRutinaCompleta" src="" alt="Imagen del ejercicio">
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="scripts.js?v=26"></script>
+</body>
+
+</html>
