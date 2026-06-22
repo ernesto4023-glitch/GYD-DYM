@@ -11,6 +11,8 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 
 // Carpetas
 const publicPath = path.join(__dirname, "public");
@@ -22,6 +24,7 @@ const productosPath = path.join(uploadsPath, "productos");
 const comprobantesPath = path.join(uploadsPath, "comprobantes");
 const ejerciciosPath = path.join(uploadsPath, "ejercicios");
 const publicidadPath = path.join(uploadsPath, "publicidad");
+const aliadosPath = path.join(uploadsPath, "aliados");
 
 [
   uploadsPath,
@@ -46,6 +49,19 @@ if (!fs.existsSync(categoriasPath)) {
 app.use(express.static(publicPath));
 app.use("/uploads", express.static(uploadsPath));
 
+// crear carpetas si no existen
+[uploadsPath, aliadosPath].forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+});
+
+app.use("/uploads", express.static(uploadsPath));
+app.use(express.static(publicPath));
+
+// =========================
+// MYSQL POOL
+// =========================
 const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -53,10 +69,19 @@ const db = mysql.createPool({
   database: process.env.DB_NAME,
   port: Number(process.env.DB_PORT || 3306),
   waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
+  connectionLimit: 10
 });
 
+// =========================
+// FRONT ROUTES
+// =========================
+app.get("/", (req, res) => {
+  res.sendFile(path.join(publicPath, "index.html"));
+});
+
+app.get("/admin", (req, res) => {
+  res.sendFile(path.join(publicPath, "admin.html"));
+});
 
 
 // Páginas
@@ -1661,183 +1686,214 @@ app.delete("/comentarios-clientes/:id", async (req, res) => {
 
 /*_________________________________________________________________ */
 
-/* =========================
-   PUBLICIDAD Y EVENTOS
-========================= */
 
-app.get("/publicidad-eventos", async (req, res) => {
+const storageAliados = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(uploadsPath, "aliados");
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  }
+});
+
+const uploadAliados = multer({ storage: storageAliados });
+
+
+// =========================
+// ALIADOS
+// =========================
+
+
+
+// =========================
+// GET - LISTAR ALIADOS
+// =========================
+app.get("/api/aliados", async (req, res) => {
   try {
-    const [rows] = await db.query(`
-      SELECT *
-      FROM publicidad_eventos
-      ORDER BY id DESC
-    `);
+    const [rows] = await db.query(
+      "SELECT * FROM aliados ORDER BY id DESC"
+    );
 
     res.json(rows);
 
-  } catch (error) {
-    console.error("Error al obtener publicidad:", error);
-
-    res.status(500).json({
-      message: "Error al obtener publicidad",
-      sqlMessage: error.sqlMessage,
-      code: error.code
-    });
+  } catch (err) {
+    console.log("ERROR GET ALIADOS:", err);
+    res.status(500).json({ error: err.message });
   }
 });
 
-app.post("/publicidad-eventos", uploadPublicidad.single("imagen"), async (req, res) => {
-  try {
-    const {
-      titulo,
-      descripcion,
-      tipo,
-      enlace,
-      whatsapp,
-      fecha_inicio,
-      fecha_fin
-    } = req.body;
 
-    if (!titulo || !descripcion) {
-      return res.status(400).json({
-        message: "Título y descripción son obligatorios"
-      });
+
+// =========================
+// POST - CREAR ALIADO
+// =========================
+app.post(
+  "/api/aliados",
+  uploadAliados.fields([
+    { name: "logo", maxCount: 1 },
+    { name: "imagen_principal", maxCount: 1 },
+    { name: "galeria", maxCount: 6 }
+  ]),
+  async (req, res) => {
+    try {
+
+      const {
+        nombre,
+        categoria,
+        descripcion,
+        ubicacion,
+        contacto
+      } = req.body;
+
+      const logo = req.files?.logo?.[0]?.filename || null;
+      const imagen_principal = req.files?.imagen_principal?.[0]?.filename || null;
+
+      const galeria = req.files?.galeria
+        ? req.files.galeria.map(f => f.filename)
+        : [];
+
+      await db.query(
+        `INSERT INTO aliados 
+        (nombre, categoria, descripcion, ubicacion, contacto, logo, imagen_principal, galeria, estado)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'activo')`,
+        [
+          nombre,
+          categoria,
+          descripcion,
+          ubicacion,
+          contacto,
+          logo,
+          imagen_principal,
+          JSON.stringify(galeria)
+        ]
+      );
+
+      res.json({ ok: true });
+
+    } catch (err) {
+      console.log("ERROR POST ALIADOS:", err);
+      res.status(500).json({ error: err.message });
     }
-
-    if (!req.file) {
-      return res.status(400).json({
-        message: "La imagen es obligatoria"
-      });
-    }
-
-    const imagen = `uploads/publicidad/${req.file.filename}`;
-
-    const [result] = await db.query(
-      `
-      INSERT INTO publicidad_eventos
-      (titulo, descripcion, imagen, tipo, enlace, whatsapp, fecha_inicio, fecha_fin)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `,
-      [
-        titulo.trim(),
-        descripcion.trim(),
-        imagen,
-        tipo || "publicidad",
-        enlace || null,
-        whatsapp || null,
-        fecha_inicio || null,
-        fecha_fin || null
-      ]
-    );
-
-    res.json({
-      id: result.insertId,
-      titulo: titulo.trim(),
-      descripcion: descripcion.trim(),
-      imagen,
-      tipo: tipo || "publicidad",
-      enlace: enlace || null,
-      whatsapp: whatsapp || null,
-      fecha_inicio: fecha_inicio || null,
-      fecha_fin: fecha_fin || null,
-      estado: "activo"
-    });
-
-  } catch (error) {
-    console.error("Error al guardar publicidad:", error);
-
-    res.status(500).json({
-      message: "Error al guardar publicidad",
-      sqlMessage: error.sqlMessage,
-      code: error.code
-    });
   }
-});
+);
 
-app.delete("/publicidad-eventos/:id", async (req, res) => {
+
+
+// =========================
+// PUT - ACTUALIZAR ALIADO
+// =========================
+app.put(
+  "/api/aliados/:id",
+  uploadAliados.fields([
+    { name: "logo", maxCount: 1 },
+    { name: "imagen_principal", maxCount: 1 },
+    { name: "galeria", maxCount: 6 }
+  ]),
+  async (req, res) => {
+    try {
+
+      const { id } = req.params;
+
+      const {
+        nombre,
+        categoria,
+        descripcion,
+        ubicacion,
+        contacto,
+        galeriaActual
+      } = req.body;
+
+      // =========================
+      // ARCHIVOS NUEVOS
+      // =========================
+      const logoFile = req.files?.logo?.[0]?.filename;
+      const imgPrincipalFile = req.files?.imagen_principal?.[0]?.filename;
+
+      // =========================
+      // REGISTRO ACTUAL
+      // =========================
+      const [rows] = await db.query(
+        "SELECT * FROM aliados WHERE id = ?",
+        [id]
+      );
+
+      const actual = rows[0];
+
+      // =========================
+      // GALERÍA FINAL
+      // =========================
+      let galeria = [];
+
+      if (req.files?.galeria?.length) {
+        galeria = req.files.galeria.map(f => f.filename);
+      } else if (galeriaActual) {
+        galeria = JSON.parse(galeriaActual);
+      } else {
+        galeria = JSON.parse(actual.galeria || "[]");
+      }
+
+      // =========================
+      // UPDATE
+      // =========================
+      await db.query(
+        `UPDATE aliados SET
+          nombre = ?,
+          categoria = ?,
+          descripcion = ?,
+          ubicacion = ?,
+          contacto = ?,
+          logo = ?,
+          imagen_principal = ?,
+          galeria = ?
+        WHERE id = ?`,
+        [
+          nombre ?? actual.nombre,
+          categoria ?? actual.categoria,
+          descripcion ?? actual.descripcion,
+          ubicacion ?? actual.ubicacion,
+          contacto ?? actual.contacto,
+          logoFile || actual.logo,
+          imgPrincipalFile || actual.imagen_principal,
+          JSON.stringify(galeria),
+          id
+        ]
+      );
+
+      res.json({ ok: true });
+
+    } catch (err) {
+      console.log("ERROR PUT ALIADOS:", err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+
+
+// =========================
+// DELETE - ELIMINAR ALIADO
+// =========================
+app.delete("/api/aliados/:id", async (req, res) => {
   try {
+
     const { id } = req.params;
 
     await db.query(
-      "DELETE FROM publicidad_eventos WHERE id = ?",
+      "DELETE FROM aliados WHERE id = ?",
       [id]
     );
 
-    res.json({
-      message: "Publicidad eliminada correctamente"
-    });
+    res.json({ ok: true });
 
-  } catch (error) {
-    console.error("Error al eliminar publicidad:", error);
-
-    res.status(500).json({
-      message: "Error al eliminar publicidad",
-      sqlMessage: error.sqlMessage,
-      code: error.code
-    });
+  } catch (err) {
+    console.log("ERROR DELETE ALIADOS:", err);
+    res.status(500).json({ error: err.message });
   }
 });
 
-/* =========================
-   RESERVAS EVENTO
-========================= */
 
-app.post("/reservas-evento", async (req, res) => {
-  try {
-    const { nombre, cedula, cantidad_cupos } = req.body;
-
-    if (!nombre || !cedula || !cantidad_cupos) {
-      return res.status(400).json({
-        message: "Nombre, cédula y cantidad de cupos son obligatorios"
-      });
-    }
-
-    const cantidad = Number(cantidad_cupos);
-
-    if (!Number.isInteger(cantidad) || cantidad <= 0) {
-      return res.status(400).json({
-        message: "La cantidad de cupos debe ser válida"
-      });
-    }
-
-    const valorCupo = 25000;
-    const total = cantidad * valorCupo;
-
-    const [result] = await db.query(
-      `
-      INSERT INTO reservas_evento
-      (nombre, cedula, cantidad_cupos, valor_cupo, total)
-      VALUES (?, ?, ?, ?, ?)
-      `,
-      [
-        nombre.trim(),
-        cedula.trim(),
-        cantidad,
-        valorCupo,
-        total
-      ]
-    );
-
-    res.json({
-      message: "Reserva registrada correctamente",
-      reserva_id: result.insertId,
-      nombre: nombre.trim(),
-      cedula: cedula.trim(),
-      cantidad_cupos: cantidad,
-      valor_cupo: valorCupo,
-      total
-    });
-
-  } catch (error) {
-    console.error("Error al registrar reserva:", error);
-
-    res.status(500).json({
-      message: "Error al registrar reserva",
-      sqlMessage: error.sqlMessage,
-      code: error.code
-    });
-  }
-});
 
 
 const PORT = process.env.PORT || 3000;

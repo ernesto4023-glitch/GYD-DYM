@@ -61,14 +61,14 @@
           <span>Clientes</span>
         </a>
 
+        <a href="#" class="admin-link" data-section="aliados">
+          <i class="bi bi-person-plus"></i>
+          <span>Aliados</span>
+        </a>
+
         <a href="#" class="admin-link" data-section="asistencias">
           <i class="bi bi-person-check"></i>
           <span>Asistencia</span>
-        </a>
-
-        <a href="#" class="admin-link" data-section="publicidad">
-          <i class="bi bi-megaphone"></i>
-          <span>Publicidad</span>
         </a>
 
         <a href="#" class="admin-link" data-section="comentarios">
@@ -692,6 +692,74 @@
 
     </section>
 
+    <section class="panel">
+
+      <div class="top">
+        <h1>Aliados</h1>
+        <button onclick="openModal()">+ Registrar Aliado</button>
+      </div>
+
+      <input type="text" placeholder="Buscar aliados..." />
+
+      <div id="list" class="list"></div>
+
+    </section>
+
+    <!-- MODAL -->
+    <div id="modal" class="modal">
+
+      <div class="modal-content">
+
+        <h2>Registrar Aliado</h2>
+
+        <form id="form" enctype="multipart/form-data">
+
+          <label>Nombre</label>
+          <input name="nombre" placeholder="Nombre" required>
+
+          <label>Categoría</label>
+          <input name="categoria" placeholder="Categoría">
+
+          <label>Descripción</label>
+          <textarea name="descripcion" placeholder="Descripción"></textarea>
+
+          <label>Ubicación</label>
+          <input name="ubicacion" placeholder="Ubicación">
+
+          <label>Contacto</label>
+          <input name="contacto" placeholder="Contacto">
+
+          <label>Logo</label>
+          <input type="file" name="logo" accept="image/*">
+
+          <label>Imagen principal</label>
+          <input type="file" name="imagen_principal" accept="image/*">
+
+          <label>Galería (máximo 6 imágenes)</label>
+          <input type="file" name="galeria" accept="image/*" multiple>
+
+          <div id="galeriaPreview" class="galeria-preview"></div>
+
+          <button onclick="closeModal()">Cerrar</button>
+          <button type="submit">Guardar</button>
+
+        </form>
+
+      </div>
+
+    </div>
+
+    <div id="modalDetalle" class="modal">
+
+      <div class="modal-content">
+
+        <!-- CONTENEDOR DINÁMICO (IMPORTANTE) -->
+        <div id="modalBody"></div>
+
+      </div>
+
+    </div>
+
     <section class="admin-section" id="asistencias">
 
       <div class="admin-toolbar-rutinas">
@@ -754,98 +822,6 @@
               Confirmar asistencia
             </button>
           </div>
-        </div>
-      </div>
-
-    </section>
-
-    <section class="admin-section" id="publicidad">
-
-      <div class="admin-toolbar-rutinas">
-        <button type="button" id="abrirModalPublicidad" class="btn-admin-primary">
-          <i class="bi bi-plus-lg"></i>
-          Nueva publicidad
-        </button>
-      </div>
-
-      <div class="admin-card">
-        <div class="admin-card-header">
-          <h3>Publicidad y eventos</h3>
-        </div>
-
-        <div class="publicidad-admin-grid" id="publicidadAdmin">
-          <!-- Publicidades desde JS -->
-        </div>
-      </div>
-
-      <!-- MODAL PUBLICIDAD -->
-      <div class="modal-admin" id="modalPublicidad">
-        <div class="modal-admin-content">
-          <button type="button" class="cerrar-modal-admin" id="cerrarModalPublicidad">
-            &times;
-          </button>
-
-          <h2>Nueva publicidad</h2>
-
-          <form id="formPublicidad" class="admin-form" enctype="multipart/form-data">
-
-            <div class="form-group">
-              <label>Título</label>
-              <input type="text" id="tituloPublicidad" required>
-            </div>
-
-            <div class="form-group">
-              <label>Descripción</label>
-              <textarea id="descripcionPublicidad" required></textarea>
-            </div>
-
-            <div class="form-group">
-              <label>Imagen</label>
-              <input type="file" id="imagenPublicidad" accept="image/*" required>
-            </div>
-
-            <div class="form-group">
-              <label>Tipo</label>
-              <select id="tipoPublicidad" required>
-                <option value="publicidad">Publicidad</option>
-                <option value="evento">Evento</option>
-                <option value="promocion">Promoción</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>WhatsApp</label>
-              <input type="text" id="whatsappPublicidad" placeholder="Ejemplo: 3223349682">
-            </div>
-
-            <div class="form-group">
-              <label>Enlace externo</label>
-              <input type="text" id="enlacePublicidad" placeholder="https://...">
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Fecha inicio</label>
-                <input type="date" id="fechaInicioPublicidad">
-              </div>
-
-              <div class="form-group">
-                <label>Fecha fin</label>
-                <input type="date" id="fechaFinPublicidad">
-              </div>
-            </div>
-
-            <div class="modal-admin-actions">
-              <button type="button" id="cancelarPublicidad" class="btn-admin-cancel">
-                Cancelar
-              </button>
-
-              <button type="submit" class="btn-admin-primary">
-                Guardar publicidad
-              </button>
-            </div>
-
-          </form>
         </div>
       </div>
 

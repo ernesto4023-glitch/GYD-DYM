@@ -12,7 +12,7 @@ const API_URL = esLocal
   ? `http://${hostname}:3000`
   : window.location.origin;
 
-  document.body.classList.add("dark-mode");
+document.body.classList.add("dark-mode");
 
 
 let monedaActual = localStorage.getItem("monedaActual") || "COP";
@@ -4692,7 +4692,7 @@ function actualizarTextoServicio(index) {
     </li>
   `).join("");
 
-  servicioBoton.href = `https://wa.me/573142266029?text=${encodeURIComponent(servicio.whatsapp)}`;
+  servicioBoton.href = `https://wa.me/573167858252?text=${encodeURIComponent(servicio.whatsapp)}`;
 }
 
 if (document.querySelector(".servicios-img-swiper")) {
@@ -4735,296 +4735,491 @@ if (document.querySelector(".servicios-img-swiper")) {
 }
 
 /* =========================
-   PUBLICIDAD Y EVENTOS
+   ESTADO GLOBAL
 ========================= */
+let aliados = [];
+let editId = null;
+let galeriaTemp = [];
+let aliadoOriginal = null;
+let aliadosFiltrados = [];
 
-const publicidadIndex = document.getElementById("publicidadIndex");
-const publicidadPagina = document.getElementById("publicidadPagina");
 
-let publicidadHomeSwiper = null;
 
-function crearCardPublicidad(item) {
-  const enlaceFinal = item.whatsapp
-    ? `https://wa.me/57${item.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent("Hola, vi tu publicidad en la página de JYD Gym y quiero más información.")}`
-    : item.enlace || "#";
+/* =========================
+   CARGAR DATOS
+========================= */
+async function cargar() {
+  const res = await fetch("/api/aliados");
+  aliados = await res.json();
+  render();
+}
 
-  return `
-    <div class="publicidad-card">
-      <div class="publicidad-card-img">
-        <img src="${API_URL}/${item.imagen}" alt="${item.titulo}">
+
+
+/* =========================
+   RENDER LISTA
+========================= */
+function render() {
+  const list = document.getElementById("list");
+
+  if (!list) return; // 🔥 evita crash
+
+  list.innerHTML = "";
+
+  aliados.forEach((a, index) => {
+    list.innerHTML += `
+      <div class="card">
+        <div class="card-left">
+          <img src="/uploads/aliados/${a.logo}">
+          <div>
+            <b>${a.nombre}</b>
+          </div>
+        </div>
+
+        <div>${a.categoria}</div>
+
+        <div class="estado ${a.estado}">
+          ${a.estado}
+        </div>
+
+        <div class="contacto">
+          📞 ${a.contacto}
+        </div>
+
+        <button onclick="verDetalle(${index})">
+          Ver detalle
+        </button>
+      </div>
+    `;
+  });
+}
+
+/* =========================
+   MODALES
+========================= */
+function openModal() {
+  document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("modal").style.display = "none";
+
+  // reset modo edición
+  editId = null;
+  document.querySelector("button[type='submit']").innerText = "Guardar";
+}
+
+
+
+/* =========================
+   DETALLE
+========================= */
+function verDetalle(index) {
+  const a = aliados[index];
+
+  document.getElementById("modalDetalle").style.display = "flex";
+
+  document.getElementById("modalBody").innerHTML = `
+    <div class="detalle-container">
+
+      <div class="detalle-header">
+        <img class="logo" src="/uploads/aliados/${a.logo}" />
+
+        <div>
+          <h2>${a.nombre}</h2>
+          <span class="estado ${a.estado}">${a.estado}</span>
+        </div>
       </div>
 
-      <div class="publicidad-card-body">
-        <span class="publicidad-tipo">${item.tipo}</span>
-        <h3>${item.titulo}</h3>
-        <p>${item.descripcion}</p>
-
-        <a href="${enlaceFinal}" target="_blank" class="publicidad-btn">
-          Más información
-        </a>
+      <div class="detalle-banner">
+        <img src="/uploads/aliados/${a.imagen_principal}" />
       </div>
+
+      <div class="detalle-grid">
+
+        <div class="box">
+          <h3>Descripción</h3>
+          <p>${a.descripcion}</p>
+        </div>
+
+        <div class="box">
+          <h3>Contacto</h3>
+          <p>📞 ${a.contacto}</p>
+        </div>
+
+        <div class="box">
+          <h3>Ubicación</h3>
+          <p>📍 ${a.ubicacion}</p>
+        </div>
+
+      </div>
+
+      <div class="galeria">
+        ${(JSON.parse(a.galeria || "[]")).map(img => `
+          <img src="/uploads/aliados/${img}" />
+        `).join("")}
+      </div>
+
+      <div class="acciones">
+        <button class="edit" onclick="abrirEditar(${index})">Editar</button>
+        <button class="delete" onclick="eliminarAliado(${a.id})">Eliminar</button>
+        <button onclick="cerrarDetalle()">Cerrar</button>
+      </div>
+
     </div>
   `;
 }
 
-async function cargarPublicidadIndex() {
-  if (!publicidadIndex) return;
-
-  try {
-    const res = await fetch(`${API_URL}/publicidad-eventos`);
-    const data = await res.json();
-
-    if (!res.ok || !Array.isArray(data)) {
-      publicidadIndex.innerHTML = "";
-      return;
-    }
-
-    const activos = data.filter(item => item.estado === "activo").slice(0, 8);
-
-    if (activos.length === 0) {
-      publicidadIndex.innerHTML = "";
-      return;
-    }
-
-    publicidadIndex.innerHTML = activos.map(item => `
-      <div class="swiper-slide">
-        ${crearCardPublicidad(item)}
-      </div>
-    `).join("");
-
-    if (publicidadHomeSwiper) {
-      publicidadHomeSwiper.destroy(true, true);
-    }
-
-    publicidadHomeSwiper = new Swiper(".publicidad-home-swiper", {
-      slidesPerView: 3,
-      spaceBetween: 20,
-      loop: activos.length > 3,
-      autoplay: {
-        delay: 3500,
-        disableOnInteraction: false
-      },
-      pagination: {
-        el: ".publicidad-pagination",
-        clickable: true
-      },
-      breakpoints: {
-        0: {
-          slidesPerView: 1
-        },
-        768: {
-          slidesPerView: 2
-        },
-        1100: {
-          slidesPerView: 3
-        }
-      }
-    });
-
-  } catch (error) {
-    console.error("Error cargando publicidad index:", error);
-  }
+function cerrarDetalle() {
+  document.getElementById("modalDetalle").style.display = "none";
 }
 
-async function cargarPublicidadPagina() {
-  if (!publicidadPagina) return;
 
-  try {
-    const res = await fetch(`${API_URL}/publicidad-eventos`);
-    const data = await res.json();
-
-    if (!res.ok || !Array.isArray(data)) {
-      publicidadPagina.innerHTML = "<p>No se pudo cargar la publicidad.</p>";
-      return;
-    }
-
-    const activos = data.filter(item => item.estado === "activo");
-
-    if (activos.length === 0) {
-      publicidadPagina.innerHTML = "<p>No hay publicidades activas todavía.</p>";
-      return;
-    }
-
-    publicidadPagina.innerHTML = activos.map(item => crearCardPublicidad(item)).join("");
-
-  } catch (error) {
-    console.error("Error cargando publicidad página:", error);
-  }
-}
-
-cargarPublicidadIndex();
-cargarPublicidadPagina();
-
-/* ================================================== */
 
 /* =========================
-   ADMIN: PUBLICIDAD Y EVENTOS
+   EDITAR
 ========================= */
+function abrirEditar(index) {
 
-const abrirModalPublicidad = document.getElementById("abrirModalPublicidad");
-const modalPublicidad = document.getElementById("modalPublicidad");
-const cerrarModalPublicidad = document.getElementById("cerrarModalPublicidad");
-const cancelarPublicidad = document.getElementById("cancelarPublicidad");
+  const a = aliados[index];
 
-const formPublicidad = document.getElementById("formPublicidad");
-const tituloPublicidad = document.getElementById("tituloPublicidad");
-const descripcionPublicidad = document.getElementById("descripcionPublicidad");
-const imagenPublicidad = document.getElementById("imagenPublicidad");
-const tipoPublicidad = document.getElementById("tipoPublicidad");
-const whatsappPublicidad = document.getElementById("whatsappPublicidad");
-const enlacePublicidad = document.getElementById("enlacePublicidad");
-const fechaInicioPublicidad = document.getElementById("fechaInicioPublicidad");
-const fechaFinPublicidad = document.getElementById("fechaFinPublicidad");
-const publicidadAdmin = document.getElementById("publicidadAdmin");
+  editId = a.id;
+  aliadoOriginal = JSON.stringify(a);
 
-function cerrarModalPublicidadAdmin() {
-  modalPublicidad?.classList.remove("activo");
-  formPublicidad?.reset();
+  document.getElementById("modal").style.display = "flex";
+
+  document.querySelector("button[type='submit']").innerText = "Actualizar";
+
+  document.querySelector("[name='nombre']").value = a.nombre;
+  document.querySelector("[name='categoria']").value = a.categoria;
+  document.querySelector("[name='descripcion']").value = a.descripcion;
+  document.querySelector("[name='ubicacion']").value = a.ubicacion;
+  document.querySelector("[name='contacto']").value = a.contacto;
+
+  galeriaTemp = JSON.parse(a.galeria || "[]");
+
+  renderGaleriaPreview();
 }
 
-function formatearFechaPublicidad(fecha) {
-  if (!fecha) return "Sin fecha";
-  return new Date(fecha).toLocaleDateString("es-CO");
+
+
+/* =========================
+   GALERÍA PREVIEW
+========================= */
+function renderGaleriaPreview() {
+
+  const cont = document.getElementById("galeriaPreview");
+  cont.innerHTML = "";
+
+  galeriaTemp.forEach((img, index) => {
+
+    cont.innerHTML += `
+      <div class="img-box"
+        draggable="true"
+        ondragstart="drag(event, ${index})"
+        ondrop="drop(event, ${index})"
+        ondragover="event.preventDefault()">
+
+        <img 
+          src="/uploads/aliados/${img}" 
+          onclick="openPreview('/uploads/aliados/${img}')"
+          class="preview-img"
+        />
+
+        <button onclick="eliminarImg(${index})">✖</button>
+
+      </div>
+    `;
+  });
 }
 
-abrirModalPublicidad?.addEventListener("click", () => {
-  formPublicidad?.reset();
-  modalPublicidad?.classList.add("activo");
+function eliminarImg(index) {
+  galeriaTemp.splice(index, 1);
+  renderGaleriaPreview();
+}
+
+
+
+/* =========================
+   DRAG & DROP
+========================= */
+let dragIndex = null;
+
+function drag(e, index) {
+  dragIndex = index;
+}
+
+function drop(e, index) {
+  const temp = galeriaTemp[dragIndex];
+  galeriaTemp[dragIndex] = galeriaTemp[index];
+  galeriaTemp[index] = temp;
+
+  renderGaleriaPreview();
+}
+
+
+
+/* =========================
+   VALIDACIÓN IMÁGENES
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+
+  const galeriaInput = document.querySelector("[name='galeria']");
+
+  if (!galeriaInput) return;
+
+  galeriaInput.addEventListener("change", (e) => {
+
+    const files = Array.from(e.target.files);
+
+    if (galeriaTemp.length + files.length > 6) {
+
+      Swal.fire({
+        icon: "error",
+        title: "Límite de imágenes",
+        text: "Solo puedes subir máximo 6 imágenes"
+      });
+
+      e.target.value = "";
+      return;
+    }
+
+  });
+
 });
+const form = document.getElementById("form");
 
-cerrarModalPublicidad?.addEventListener("click", cerrarModalPublicidadAdmin);
-cancelarPublicidad?.addEventListener("click", cerrarModalPublicidadAdmin);
+if (form) {
+  form.addEventListener("submit", async (e) => {
 
-formPublicidad?.addEventListener("submit", async e => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const archivo = imagenPublicidad.files[0];
+    const formData = new FormData(e.target);
 
-  if (!archivo) {
-    alert("Selecciona una imagen");
-    return;
-  }
+    // limpiar vacíos
+    for (let [key, value] of formData.entries()) {
+      if (value === "" || value === "undefined") {
+        formData.delete(key);
+      }
+    }
 
-  const formData = new FormData();
+    formData.append("galeriaActual", JSON.stringify(galeriaTemp));
 
-  formData.append("titulo", tituloPublicidad.value.trim());
-  formData.append("descripcion", descripcionPublicidad.value.trim());
-  formData.append("imagen", archivo);
-  formData.append("tipo", tipoPublicidad.value);
-  formData.append("whatsapp", whatsappPublicidad.value.trim());
-  formData.append("enlace", enlacePublicidad.value.trim());
-  formData.append("fecha_inicio", fechaInicioPublicidad.value);
-  formData.append("fecha_fin", fechaFinPublicidad.value);
+    const url = editId
+      ? `/api/aliados/${editId}`
+      : "/api/aliados";
 
-  try {
-    const res = await fetch(`${API_URL}/publicidad-eventos`, {
-      method: "POST",
+    const method = editId ? "PUT" : "POST";
+
+    await fetch(url, {
+      method,
       body: formData
     });
 
-    const data = await res.json();
+    editId = null;
+    galeriaTemp = [];
+    closeModal();
+    cargar();
+    e.target.reset();
 
-    if (!res.ok) {
-      alert(data.message || "No se pudo guardar la publicidad");
-      return;
-    }
-
-    cerrarModalPublicidadAdmin();
-
-    await cargarPublicidadAdmin();
-    await cargarPublicidadIndex();
-    await cargarPublicidadPagina();
-
-    alert("Publicidad guardada correctamente");
-
-  } catch (error) {
-    console.error(error);
-    alert("Error al guardar publicidad");
-  }
-});
-
-async function cargarPublicidadAdmin() {
-  if (!publicidadAdmin) return;
-
-  try {
-    const res = await fetch(`${API_URL}/publicidad-eventos`);
-    const data = await res.json();
-
-    if (!res.ok || !Array.isArray(data)) {
-      publicidadAdmin.innerHTML = "<p>No se pudo cargar la publicidad.</p>";
-      return;
-    }
-
-    if (data.length === 0) {
-      publicidadAdmin.innerHTML = "<p>No hay publicidad registrada todavía.</p>";
-      return;
-    }
-
-    publicidadAdmin.innerHTML = data.map(item => `
-      <div class="publicidad-admin-card">
-        <div class="publicidad-admin-img">
-          <img src="${API_URL}/${item.imagen}" alt="${item.titulo}">
-        </div>
-
-        <div class="publicidad-admin-body">
-          <span>${item.tipo}</span>
-          <h3>${item.titulo}</h3>
-          <p>${item.descripcion}</p>
-
-          <small>
-            ${formatearFechaPublicidad(item.fecha_inicio)} - ${formatearFechaPublicidad(item.fecha_fin)}
-          </small>
-
-          <button 
-            type="button" 
-            class="btn-eliminar-publicidad"
-            data-publicidad-id="${item.id}"
-          >
-            <i class="bi bi-trash"></i>
-            Eliminar
-          </button>
-        </div>
-      </div>
-    `).join("");
-
-  } catch (error) {
-    console.error(error);
-  }
+  });
 }
 
-publicidadAdmin?.addEventListener("click", async e => {
-  const boton = e.target.closest(".btn-eliminar-publicidad");
+/* =========================
+   ELIMINAR
+========================= */
+async function eliminarAliado(id) {
 
-  if (!boton) return;
+  const result = await Swal.fire({
+    title: "¿Eliminar aliado?",
+    text: "Esta acción no se puede deshacer",
+    icon: "warning",
+    background: "#0f0f10",
+    color: "#fff",
+    showCancelButton: true,
+    confirmButtonColor: "#ff8c00",
+    cancelButtonColor: "#333",
+    confirmButtonText: "Sí, eliminar",
+    cancelButtonText: "Cancelar"
+  });
 
-  const id = boton.dataset.publicidadId;
+  if (!result.isConfirmed) return;
 
-  const confirmar = confirm("¿Seguro que quieres eliminar esta publicidad?");
+  await fetch(`/api/aliados/${id}`, {
+    method: "DELETE"
+  });
 
-  if (!confirmar) return;
+  await Swal.fire({
+    title: "Eliminado",
+    text: "El aliado fue eliminado correctamente",
+    icon: "success",
+    background: "#0f0f10",
+    color: "#fff",
+    confirmButtonColor: "#ff8c00"
+  });
 
-  try {
-    const res = await fetch(`${API_URL}/publicidad-eventos/${id}`, {
-      method: "DELETE"
+  cerrarDetalle();
+  cargar();
+}
+
+
+
+/* =========================
+   INIT
+========================= */
+cargar();
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const grid = document.getElementById("aliadosGrid");
+  if (!grid) return;
+
+  cargarAliados();
+
+  const buscar = document.getElementById("buscarAliados");
+  if (buscar) {
+    buscar.addEventListener("input", (e) => {
+      filtrarAliados(e.target.value);
     });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      alert(data.message || "No se pudo eliminar la publicidad");
-      return;
-    }
-
-    await cargarPublicidadAdmin();
-    await cargarPublicidadIndex();
-    await cargarPublicidadPagina();
-
-    alert("Publicidad eliminada correctamente");
-
-  } catch (error) {
-    console.error(error);
-    alert("Error al eliminar publicidad");
   }
 });
 
-cargarPublicidadAdmin();
+async function cargarAliados() {
+
+  const grid = document.getElementById("aliadosGrid");
+
+  if (!grid) return; // 👈 evita crash total
+
+  const res = await fetch("/api/aliados");
+  const aliados = await res.json();
+
+  grid.innerHTML = "";
+
+  aliados.forEach(a => {
+    grid.innerHTML += `
+      <div class="aliado-card" onclick="verAliado(${a.id})">
+        <img src="/uploads/aliados/${a.logo}">
+        <h3>${a.nombre}</h3>
+        <p>${a.categoria}</p>
+      </div>
+    `;
+  });
+}
+
+cargarAliados();
+
+async function verAliado(id) {
+
+  const res = await fetch("/api/aliados");
+  const aliados = await res.json();
+
+  const a = aliados.find(x => x.id == id);
+
+  if (!a) return;
+
+  const modal = document.getElementById("modalAliado");
+  const body = document.getElementById("modalAliadoBody");
+
+  if (!modal || !body) return;
+
+  modal.style.display = "flex";
+
+  body.innerHTML = `
+    <div class="detalle-container">
+
+      <div class="detalle-header">
+        <img class="logo" src="/uploads/aliados/${a.logo}" />
+
+        <div class="aja">
+          <h2>${a.nombre}</h2>
+          <span class="estado ${a.estado}">${a.estado}</span>
+        </div>
+      </div>
+
+      <div class="detalle-banner">
+        <img src="/uploads/aliados/${a.imagen_principal}" />
+      </div>
+
+      <div class="detalle-grid">
+
+        <div class="box">
+          <h3>Descripción</h3>
+          <p>${a.descripcion}</p>
+        </div>
+
+        <div class="box">
+          <h3>Contacto</h3>
+          <p>📞 ${a.contacto}</p>
+        </div>
+
+        <div class="box">
+          <h3>Ubicación</h3>
+          <p>📍 ${a.ubicacion}</p>
+        </div>
+
+      </div>
+
+      <div class="galeria">
+        ${(JSON.parse(a.galeria || "[]")).map(img => `
+          <img src="/uploads/aliados/${img}" />
+        `).join("")}
+      </div>
+
+  `;
+}
+
+function cerrarModal() {
+  const modal = document.getElementById("modalAliado");
+  if (modal) modal.style.display = "none";
+}
+
+function renderAliados(aliados) {
+  const grid = document.getElementById("aliadosGrid");
+  if (!grid) return;
+
+  let html = "";
+
+  aliados.forEach(a => {
+    html += `
+      <div class="aliado-card" onclick="verAliado(${a.id})">
+        <img src="/uploads/aliados/${a.logo}">
+        <h3>${a.nombre}</h3>
+        <p>${a.categoria}</p>
+      </div>
+    `;
+  });
+
+  grid.innerHTML = html;
+}
+
+function filtrarAliados(texto) {
+
+  const filtro = texto.toLowerCase();
+
+  aliadosFiltrados = aliados.filter(a => {
+    return (
+      a.nombre.toLowerCase().includes(filtro) ||
+      a.categoria.toLowerCase().includes(filtro)
+    );
+  });
+
+  renderAliados(aliadosFiltrados);
+}
+
+function abrirModalAliado(a) {
+  alert(`Aliado: ${a.nombre}`);
+}
+
+window.openPreview = function(src){
+  const lb = document.getElementById("lightbox");
+  const img = document.getElementById("lightboxImg");
+
+  if(!lb || !img) return;
+
+  img.src = src;
+  lb.style.display = "flex";
+} 
+
+document.getElementById("lightbox").onclick = function(){
+  this.style.display = "none";
+};
