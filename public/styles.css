@@ -3507,6 +3507,21 @@ form button[onclick]:hover{
     bottom: 12px;
   }
 
+  .modal-content{
+    padding: 0;
+  }
+  .detalle-container{
+    display: grid;
+    grid-template-columns: 1fr;
+    height: 180vh;
+  }
+
+
+  .detalle-grid{
+    position: static;
+    margin-top: 20px;
+  }
+
   /* PRODUCTOS INDEX COMO SWIPER */
   .productos-home {
     overflow: hidden;
@@ -3636,10 +3651,6 @@ form button[onclick]:hover{
   .servicios-img-swiper {
     height: 430px;
   }
-}
-
-/* RESPONSIVE MOBILE */
-@media (max-width: 768px) {
 
   .close-x{
     z-index: 999999999;
@@ -4075,8 +4086,6 @@ form button[onclick]:hover{
     margin-top: 32px;
   }
 
-@media (max-width: 768px) {
-
   .modal-content {
     width: 90%;
     border-radius: 24px;
@@ -4142,5 +4151,4 @@ form button[onclick]:hover{
     font-size: 14px;
     padding: 10px;
   }
-}
 }
