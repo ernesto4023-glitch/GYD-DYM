@@ -2849,7 +2849,7 @@ button:hover{
 .modal-content{
   position:relative;
   width:900px;
-  max-width:95%;
+  max-width:80%;
   background:#0f0f10;
   border-radius:18px;
   padding:20px;
@@ -2966,13 +2966,16 @@ form button[onclick]:hover{
   background:#0f0f10;
   width:900px;
   max-width:95%;
+  height: 75vh;
   border-radius:20px;
   padding:20px;
   color:#fff;
-  box-shadow:0 20px 60px rgba(0,0,0,.7);
-  border:1px solid rgba(255,140,0,.15);
+  border:px solid rgba(255,140,0,.15);
   position: relative;
   z-index: 1000;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+
 }
 
 /* =========================
@@ -2985,6 +2988,7 @@ form button[onclick]:hover{
   align-items: center;
   gap:25px;
   margin-bottom:10px;
+  height: 25%;
 }
 
 .detalle-header h2{
@@ -3003,7 +3007,7 @@ form button[onclick]:hover{
 ========================= */
 .detalle-banner img{
   width:100%;
-  height:300px;
+  height:100%;
   object-fit:cover;
   border-radius:15px;
   margin:15px 0;
@@ -3017,6 +3021,9 @@ form button[onclick]:hover{
   display:grid;
   grid-template-columns: 1fr;
   gap:15px;
+  width: 98%;
+  position: relative;
+  bottom: 74%;
 }
 
 .btn-contactar{
@@ -3058,6 +3065,7 @@ form button[onclick]:hover{
   grid-template-columns:repeat(6,1fr);
   gap:8px;
   margin-top:15px;
+  margin-left: 10px;
 }
 
 .galeria img{
@@ -3299,140 +3307,6 @@ form button[onclick]:hover{
 /* =========================
    RESPONSIVE
 ========================= */
-@media (max-width:768px){
-  .detalle-grid{
-    grid-template-columns:1fr;
-  }
-
-  .galeria{
-    grid-template-columns:repeat(3,1fr);
-  }
-}
-@keyframes entradaModalAnuncio {
-  from {
-    opacity: 0;
-    transform: translateY(25px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes brilloReservaMetal {
-  0% {
-    transform: translateX(-130%) rotate(8deg);
-  }
-  55% {
-    transform: translateX(130%) rotate(8deg);
-  }
-  100% {
-    transform: translateX(130%) rotate(8deg);
-  }
-}
-
-@keyframes flechaReservaMetal {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(7px);
-  }
-}
-
-@keyframes formularioReservaEntrada {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(18px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
-  }
-}
-
-@keyframes pulsoMiniAnuncio {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.08);
-  }
-}
-
-@media (max-width: 768px) {
-  .modal-anuncio-content {
-    width: min(94vw, 430px);
-    border-radius: 20px;
-  }
-
-  .cerrar-anuncio {
-    width: 36px;
-    height: 36px;
-    font-size: 26px;
-    position: fixed;
-    top: 85px;
-    z-index: 9999999;
-  }
-
-  .btn-reserva-metal {
-    bottom: 3%;
-    min-width: 72%;
-    padding: 12px 16px;
-    font-size: 14px;
-    gap: 8px;
-  }
-
-  .btn-reserva-icon {
-    width: 28px;
-    height: 28px;
-  }
-
-  .btn-reserva-icon i {
-    font-size: 17px;
-  }
-
-  .form-reserva-evento {
-    bottom: 4%;
-    width: 90%;
-    padding: 18px;
-    height: 90%;
-    overflow-y: auto;
-  }
-
-  .form-reserva-evento h3 {
-    font-size: 23px;
-  }
-
-  .form-reserva-group input {
-    height: 40px;
-  }
-
-  .reserva-total {
-    font-size: 14px;
-  }
-
-  .btn-confirmar-cupo {
-    font-size: 14px;
-    padding: 12px 16px;
-  }
-
-  .btn-flotante-anuncio {
-    width: 58px;
-    height: 58px;
-    right: 15px;
-    bottom: 110px;
-  }
-}
-
-@media (max-width: 768px) {
-  .publicidad-admin-grid {
-    grid-template-columns: 1fr;
-  }
-}
-/* =========================
-   RESPONSIVE
-========================= */
 
 @media (max-width: 1200px) {
   .catalogo-grid {
@@ -3470,11 +3344,6 @@ form button[onclick]:hover{
 ========================= */
 
 @media (max-width: 900px) {
-
-  /* BARRA EXTRA */
-  .extra-content {
-    display: none;
-  }
 
   /* HEADER / NAV MOBILE */
   .catalogo-nav {
