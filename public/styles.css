@@ -2610,6 +2610,7 @@ td {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  overflow: hidden;
 }
 
 .comentario-slide-card p {
@@ -2630,19 +2631,6 @@ td {
   font-weight: 800;
 }
 
-@media (min-width: 1024px) {
-
-  .comentario-slide-card {
-    height: auto;          /* clave */
-    min-height: 230px;     /* mantiene consistencia visual */
-  }
-
-  .comentario-slide-card p {
-    overflow-wrap: anywhere;
-    word-break: break-word;
-  }
-
-}
 /*__________________________________________*/
 
 /* =========================
