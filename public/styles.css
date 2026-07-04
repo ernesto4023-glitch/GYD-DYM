@@ -2634,7 +2634,47 @@ td {
 }
 
 /*__________________________________________*/
+.install-pwa-btn {
+  position: fixed;
+  right: 24px;
+  bottom: 95px;
+  z-index: 9999;
 
+  background: #ff5a00;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 14px 22px;
+
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+
+  box-shadow: 0 8px 25px rgba(255, 90, 0, 0.45);
+  animation: installMove 1.4s infinite ease-in-out;
+}
+
+.install-pwa-btn:hover {
+  transform: scale(1.05);
+  background: #ff6f1a;
+}
+
+@keyframes installMove {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 8px 25px rgba(255, 90, 0, 0.45);
+  }
+
+  50% {
+    transform: translateY(-8px);
+    box-shadow: 0 14px 35px rgba(255, 90, 0, 0.75);
+  }
+
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 8px 25px rgba(255, 90, 0, 0.45);
+  }
+}
 /* =========================
    PANEL PRINCIPAL
 ========================= */

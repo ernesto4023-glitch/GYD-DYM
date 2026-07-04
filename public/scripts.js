@@ -5223,3 +5223,45 @@ window.openPreview = function(src){
 document.getElementById("lightbox").onclick = function(){
   this.style.display = "none";
 };
+
+let deferredPrompt;
+
+const installPwaBtn = document.getElementById("installPwaBtn");
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+
+  deferredPrompt = event;
+
+  if (installPwaBtn) {
+    installPwaBtn.hidden = false;
+  }
+
+  console.log("La PWA está lista para instalarse");
+});
+
+if (installPwaBtn) {
+  installPwaBtn.addEventListener("click", async () => {
+    if (!deferredPrompt) {
+      console.log("La instalación todavía no está disponible");
+      return;
+    }
+
+    deferredPrompt.prompt();
+
+    const result = await deferredPrompt.userChoice;
+
+    console.log("Resultado de instalación:", result.outcome);
+
+    deferredPrompt = null;
+    installPwaBtn.hidden = true;
+  });
+}
+
+window.addEventListener("appinstalled", () => {
+  console.log("PWA instalada correctamente");
+
+  if (installPwaBtn) {
+    installPwaBtn.hidden = true;
+  }
+});
