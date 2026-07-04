@@ -14,6 +14,62 @@ const API_URL = esLocal
 
 document.body.classList.add("dark-mode");
 
+let deferredPrompt = null;
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredPrompt = event;
+
+  const installPwaBtn = document.getElementById("installPwaBtn");
+
+  if (installPwaBtn) {
+    installPwaBtn.style.display = "block";
+  }
+
+  console.log("PWA lista para instalar");
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const installPwaBtn = document.getElementById("installPwaBtn");
+
+  if (!installPwaBtn) return;
+
+  const isStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+  if (isStandalone) {
+    installPwaBtn.style.display = "none";
+    return;
+  }
+
+  installPwaBtn.addEventListener("click", async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+
+      const result = await deferredPrompt.userChoice;
+      console.log("Resultado instalación:", result.outcome);
+
+      deferredPrompt = null;
+      installPwaBtn.style.display = "none";
+    } else {
+      alert(
+        "Para instalar la app: abre el menú del navegador y selecciona 'Instalar app' o 'Agregar a pantalla principal'."
+      );
+    }
+  });
+});
+
+window.addEventListener("appinstalled", () => {
+  const installPwaBtn = document.getElementById("installPwaBtn");
+
+  if (installPwaBtn) {
+    installPwaBtn.style.display = "none";
+  }
+
+  console.log("App instalada correctamente");
+});
+
 
 let monedaActual = localStorage.getItem("monedaActual") || "COP";
 let tasaCambio = 1;
@@ -5223,45 +5279,3 @@ window.openPreview = function(src){
 document.getElementById("lightbox").onclick = function(){
   this.style.display = "none";
 };
-
-let deferredPrompt;
-
-const installPwaBtn = document.getElementById("installPwaBtn");
-
-window.addEventListener("beforeinstallprompt", (event) => {
-  event.preventDefault();
-
-  deferredPrompt = event;
-
-  if (installPwaBtn) {
-    installPwaBtn.hidden = false;
-  }
-
-  console.log("La PWA está lista para instalarse");
-});
-
-if (installPwaBtn) {
-  installPwaBtn.addEventListener("click", async () => {
-    if (!deferredPrompt) {
-      console.log("La instalación todavía no está disponible");
-      return;
-    }
-
-    deferredPrompt.prompt();
-
-    const result = await deferredPrompt.userChoice;
-
-    console.log("Resultado de instalación:", result.outcome);
-
-    deferredPrompt = null;
-    installPwaBtn.hidden = true;
-  });
-}
-
-window.addEventListener("appinstalled", () => {
-  console.log("PWA instalada correctamente");
-
-  if (installPwaBtn) {
-    installPwaBtn.hidden = true;
-  }
-});
