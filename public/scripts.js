@@ -5266,16 +5266,267 @@ function abrirModalAliado(a) {
   alert(`Aliado: ${a.nombre}`);
 }
 
-window.openPreview = function(src){
+window.openPreview = function (src) {
   const lb = document.getElementById("lightbox");
   const img = document.getElementById("lightboxImg");
 
-  if(!lb || !img) return;
+  if (!lb || !img) return;
 
   img.src = src;
   lb.style.display = "flex";
-} 
+}
 
-document.getElementById("lightbox").onclick = function(){
+document.getElementById("lightbox").onclick = function () {
   this.style.display = "none";
 };
+
+/* =========================
+   VIDEOS ADMIN
+========================= */
+
+const MAX_DURACION_VIDEO = 300;
+
+const btnSubirVideo = document.getElementById("btnSubirVideo");
+const videoInput = document.getElementById("videoInput");
+const contenedorVideos = document.getElementById("contenedorVideos");
+
+
+if (btnSubirVideo && videoInput) {
+
+  btnSubirVideo.addEventListener("click", () => {
+
+    console.log("Botón video presionado");
+    videoInput.click();
+
+  });
+
+
+  videoInput.addEventListener("change", () => {
+
+
+    const archivo = videoInput.files[0];
+
+
+    if (!archivo) return;
+
+
+
+    const video = document.createElement("video");
+
+
+    video.preload = "metadata";
+
+
+    video.onloadedmetadata = () => {
+
+
+      URL.revokeObjectURL(video.src);
+
+
+
+      if (video.duration > MAX_DURACION_VIDEO) {
+
+
+        Swal.fire({
+
+          icon: "error",
+          title: "Video demasiado largo",
+          text: "El video máximo permitido es de 5 minutos"
+
+        });
+
+
+        videoInput.value = "";
+
+        return;
+
+      }
+
+
+      subirVideo(archivo);
+
+
+    };
+
+
+    video.src = URL.createObjectURL(archivo);
+
+
+  });
+
+}
+
+
+
+async function subirVideo(archivo) {
+
+
+  const formData = new FormData();
+
+
+  formData.append(
+    "video",
+    archivo
+  );
+
+
+
+  try {
+
+
+    const respuesta = await fetch("/videos", {
+
+      method: "POST",
+      body: formData
+
+    });
+
+
+
+    const data = await respuesta.json();
+
+
+
+    if (!respuesta.ok) {
+
+      throw new Error(data.message);
+
+    }
+
+
+
+    Swal.fire({
+
+      icon: "success",
+      title: "Video subido correctamente",
+      timer: 1500,
+      showConfirmButton: false
+
+    });
+
+
+
+    videoInput.value = "";
+
+
+    cargarVideos();
+
+
+
+  } catch (error) {
+
+
+    Swal.fire({
+
+      icon: "error",
+      title: "Error",
+      text: error.message
+
+    });
+
+
+  }
+
+}
+
+
+
+
+async function cargarVideos() {
+
+
+  if (!contenedorVideos) return;
+
+
+
+  try {
+
+
+    const res = await fetch("/videos");
+
+
+    const videos = await res.json();
+
+
+
+    contenedorVideos.innerHTML = videos.map(video => `
+
+            <div class="video-card">
+
+
+                <video controls width="320">
+
+                    <source 
+                    src="/${video.archivo}" 
+                    type="video/mp4">
+
+                </video>
+
+
+                <p>${video.titulo || "Video JYD GYM"}</p>
+
+
+                <button 
+                class="btn-admin-cancel"
+                onclick="eliminarVideo(${video.id})">
+
+                    Eliminar
+
+                </button>
+
+
+            </div>
+
+        `).join("");
+
+
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+
+}
+
+
+
+async function eliminarVideo(id) {
+
+
+  const confirmar = await Swal.fire({
+
+    title: "¿Eliminar video?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Eliminar"
+
+  });
+
+
+
+  if (!confirmar.isConfirmed) return;
+
+
+
+  await fetch(`/videos/${id}`, {
+
+    method: "DELETE"
+
+  });
+
+
+
+  cargarVideos();
+
+
+}
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  cargarVideos();
+
+});

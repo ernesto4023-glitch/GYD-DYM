@@ -24,6 +24,7 @@ const productosPath = path.join(uploadsPath, "productos");
 const comprobantesPath = path.join(uploadsPath, "comprobantes");
 const ejerciciosPath = path.join(uploadsPath, "ejercicios");
 const publicidadPath = path.join(uploadsPath, "publicidad");
+const videosPath = path.join(uploadsPath, "videos");
 const aliadosPath = path.join(uploadsPath, "aliados");
 
 [
@@ -33,7 +34,9 @@ const aliadosPath = path.join(uploadsPath, "aliados");
   productosPath,
   comprobantesPath,
   ejerciciosPath,
-  publicidadPath
+  publicidadPath,
+  aliadosPath,
+  videosPath
 ].forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
@@ -320,6 +323,55 @@ const uploadPublicidad = multer({
   storage: storagePublicidad
 });
 
+/* =========================
+   VIDEOS
+========================= */
+
+
+const storageVideos = multer.diskStorage({
+
+  destination: (req, file, cb) => {
+    cb(null, videosPath);
+  },
+
+  filename: (req, file, cb) => {
+
+    const extension = path.extname(file.originalname);
+
+    const nombre =
+      `video-${Date.now()}${extension}`;
+
+    cb(null, nombre);
+
+  }
+
+});
+
+
+const uploadVideo = multer({
+
+  storage: storageVideos,
+
+  limits: {
+    fileSize: 500 * 1024 * 1024 //500MB
+  },
+
+  fileFilter: (req, file, cb) => {
+
+    const permitidos = [
+      "video/mp4",
+      "video/webm"
+    ];
+
+    if (permitidos.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Formato no permitido"));
+    }
+
+  }
+
+});
 /* =========================
    CATEGORÍAS
 ========================= */
@@ -1702,12 +1754,6 @@ const uploadAliados = multer({ storage: storageAliados });
 
 
 // =========================
-// ALIADOS
-// =========================
-
-
-
-// =========================
 // GET - LISTAR ALIADOS
 // =========================
 app.get("/api/aliados", async (req, res) => {
@@ -1893,6 +1939,118 @@ app.delete("/api/aliados/:id", async (req, res) => {
   }
 });
 
+app.post(
+"/videos",
+uploadVideo.single("video"),
+async(req,res)=>{
+
+try{
+
+const [cantidad] = await db.query(
+"SELECT COUNT(*) AS total FROM videos"
+);
+
+
+if(cantidad[0].total >= 3){
+
+return res.status(400).json({
+message:"Solo puedes tener máximo 3 videos publicados"
+});
+
+}
+
+
+if(!req.file){
+
+return res.status(400).json({
+message:"Selecciona un video"
+});
+
+}
+
+
+const archivo =
+`uploads/videos/${req.file.filename}`;
+
+
+await db.query(
+`
+INSERT INTO videos
+(titulo,archivo)
+VALUES (?,?)
+`,
+[
+req.body.titulo || "",
+archivo
+]
+);
+
+
+res.json({
+message:"Video guardado correctamente"
+});
+
+
+}catch(error){
+
+console.log(error);
+
+res.status(500).json(error);
+
+}
+
+});
+
+app.get("/videos", async (req, res) => {
+
+  try {
+
+    const [rows] = await db.query(
+      `
+      SELECT *
+      FROM videos
+      ORDER BY id DESC
+      `
+    );
+
+
+    res.json(rows);
+
+
+  } catch (error) {
+
+    res.status(500).json(error);
+
+  }
+
+
+});
+
+app.delete("/videos/:id", async(req,res)=>{
+
+try{
+
+const {id}=req.params;
+
+
+await db.query(
+"DELETE FROM videos WHERE id=?",
+[id]
+);
+
+
+res.json({
+message:"Video eliminado"
+});
+
+
+}catch(error){
+
+res.status(500).json(error);
+
+}
+
+});
 
 
 

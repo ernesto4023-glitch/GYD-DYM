@@ -50,6 +50,11 @@
           <span>Productos</span>
         </a>
 
+        <a href="#" class="admin-link" data-section="videos">
+          <i class="bi bi-camera-reels"></i>
+          <span>Videos</span>
+        </a>
+
         <a href="#" class="admin-link" data-section="pedidos">
           <i class="bi bi-receipt"></i>
           <span>Pedidos</span>
@@ -595,6 +600,39 @@
       </div>
 
       <div id="contenedorProductos" class="productos-admin"></div>
+    </section>
+
+
+
+    <section class="admin-section" id="videos">
+
+      <h2 class="admin-h2">
+        Videos
+      </h2>
+
+
+      <div class="admin-card">
+
+
+        <button id="btnSubirVideo" class="btn-admin-primary">
+          <i class="bi bi-camera-video"></i>
+          Subir video
+        </button>
+
+        <input type="file" id="videoInput" accept="video/mp4,video/webm,video/ogg" hidden>
+
+
+        <div id="previewVideo"></div>
+
+
+        <div id="listaVideosAdmin">
+
+        </div>
+
+
+      </div>
+
+
     </section>
 
     <section class="admin-section" id="pedidos">
