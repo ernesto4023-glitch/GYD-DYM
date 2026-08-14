@@ -5276,10 +5276,13 @@ window.openPreview = function (src) {
   lb.style.display = "flex";
 }
 
-document.getElementById("lightbox").onclick = function () {
-  this.style.display = "none";
-};
+const lightbox = document.getElementById("lightbox");
 
+if (lightbox) {
+  lightbox.addEventListener("click", function () {
+    this.style.display = "none";
+  });
+}
 /* =========================
    VIDEOS ADMIN
 ========================= */
@@ -5288,6 +5291,7 @@ const MAX_DURACION_VIDEO = 300;
 
 const btnSubirVideo = document.getElementById("btnSubirVideo");
 const videoInput = document.getElementById("videoInput");
+const listaVideosAdmin = document.getElementById("listaVideosAdmin");
 const contenedorVideos = document.getElementById("contenedorVideos");
 
 
@@ -5374,7 +5378,7 @@ async function subirVideo(archivo) {
   try {
 
 
-    const respuesta = await fetch("/videos", {
+    const respuesta = await fetch(`${API_URL}/videos`, {
 
       method: "POST",
       body: formData
@@ -5434,59 +5438,71 @@ async function subirVideo(archivo) {
 
 async function cargarVideos() {
 
-
-  if (!contenedorVideos) return;
-
-
+  if (!listaVideosAdmin && !contenedorVideos) return;
 
   try {
 
-
-    const res = await fetch("/videos");
-
-
+    const res = await fetch(`${API_URL}/videos`);
     const videos = await res.json();
 
+    // ADMIN
+    if (listaVideosAdmin) {
+
+      listaVideosAdmin.innerHTML = videos.map(video => `
+        <div class="video-card">
+
+          <video controls preload="metadata">
+            <source
+              src="${API_URL}/${video.archivo}"
+              type="video/mp4"
+            >
+          </video>
+
+          <p>${video.titulo || "Video JYD GYM"}</p>
+
+          <button
+            type="button"
+            class="btn-admin-cancel"
+            onclick="eliminarVideo(${video.id})"
+          >
+            Eliminar
+          </button>
+
+        </div>
+      `).join("");
+
+    }
 
 
-    contenedorVideos.innerHTML = videos.map(video => `
+    // INDEX
+    if (contenedorVideos) {
 
-            <div class="video-card">
+      contenedorVideos.innerHTML = videos.map(video => `
+        <div class="video-card">
 
+          <video
+            controls
+            preload="metadata"
+            playsinline
+          >
+            <source
+              src="${API_URL}/${video.archivo}"
+              type="video/mp4"
+            >
+          </video>
 
-                <video controls width="320">
+          <p>${video.titulo || "Video JYD GYM"}</p>
 
-                    <source 
-                    src="/${video.archivo}" 
-                    type="video/mp4">
+        </div>
+      `).join("");
 
-                </video>
-
-
-                <p>${video.titulo || "Video JYD GYM"}</p>
-
-
-                <button 
-                class="btn-admin-cancel"
-                onclick="eliminarVideo(${video.id})">
-
-                    Eliminar
-
-                </button>
-
-
-            </div>
-
-        `).join("");
-
-
+    }
 
   } catch (error) {
 
-    console.log(error);
+    console.error("Error cargando videos:", error);
 
   }
-
 
 }
 
@@ -5510,7 +5526,7 @@ async function eliminarVideo(id) {
 
 
 
-  await fetch(`/videos/${id}`, {
+  await fetch(`${API_URL}/videos/${id}`, {
 
     method: "DELETE"
 
